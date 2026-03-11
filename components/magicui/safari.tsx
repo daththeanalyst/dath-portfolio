@@ -15,7 +15,7 @@ export function Safari({
         className
       )}
     >
-      <div className="flex bg-white/[0.03] border-b border-white border-opacity-5 px-3 py-2 sm:px-4 sm:py-2.5 items-center gap-2 shrink-0">
+      <div className="flex bg-white/[0.03] border-b border-white/5 px-3 py-2 sm:px-4 sm:py-2.5 items-center gap-2 shrink-0">
         <div className="flex gap-1.5">
           <div className="w-2.5 h-2.5 rounded-full bg-[#ff5f56]" />
           <div className="w-2.5 h-2.5 rounded-full bg-[#ffbd2e]" />

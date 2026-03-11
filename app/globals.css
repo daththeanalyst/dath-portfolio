@@ -37,6 +37,15 @@ body {
   overflow-x: hidden;
 }
 
+/* Custom cursor — hide native on devices with a precise pointer */
+@media (pointer: fine) {
+  *,
+  *::before,
+  *::after {
+    cursor: none !important;
+  }
+}
+
 /* Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;

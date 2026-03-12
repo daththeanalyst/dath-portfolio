@@ -1,6 +1,12 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useRef, useEffect } from "react";
+import {
+  motion,
+  useMotionValue,
+  useTransform,
+  useSpring,
+} from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import { GlowButton } from "@/components/shared/GlowButton";
 
@@ -25,8 +31,35 @@ const itemVariants = {
 };
 
 export function Hero() {
+  const nameRef = useRef<HTMLDivElement>(null);
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+
+  const springConfig = { stiffness: 80, damping: 20, mass: 0.8 };
+  const rotateX = useSpring(
+    useTransform(mouseY, [-1, 1], [5, -5]),
+    springConfig
+  );
+  const rotateY = useSpring(
+    useTransform(mouseX, [-1, 1], [-5, 5]),
+    springConfig
+  );
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      const x = (e.clientX / window.innerWidth) * 2 - 1;
+      const y = (e.clientY / window.innerHeight) * 2 - 1;
+      mouseX.set(x);
+      mouseY.set(y);
+    };
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, [mouseX, mouseY]);
+
   const scrollToShowcase = () => {
-    document.getElementById("projects")?.scrollIntoView({ behavior: "smooth" });
+    document
+      .getElementById("projects")
+      ?.scrollIntoView({ behavior: "smooth" });
   };
 
   return (
@@ -46,28 +79,48 @@ export function Hero() {
           </span>
         </motion.div>
 
-        {/* Name */}
-        <motion.h1
-          variants={itemVariants}
-          className="font-[family-name:var(--font-space-grotesk)] text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[0.95]"
-        >
-          <span className="block text-white" style={{ textShadow: '0 0 40px rgba(255,255,255,0.1)' }}>
-            Dimitrios
-          </span>
-          <span className="relative block mt-2">
-            {/* Glow layer */}
-            <span
-              aria-hidden="true"
-              className="absolute inset-0 bg-[linear-gradient(to_right,#00f0ff,#a855f7_50%,#00f0ff)] bg-clip-text text-transparent animate-gradient-text blur-2xl opacity-40 select-none"
+        {/* Name — 3D perspective tilt + letter-by-letter reveal */}
+        <motion.div variants={itemVariants}>
+          <motion.div
+            ref={nameRef}
+            style={{
+              rotateX,
+              rotateY,
+              transformPerspective: 800,
+            }}
+          >
+            <h1
+              className="font-[family-name:var(--font-space-grotesk)] text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[0.95]"
+              style={{ textShadow: "0 4px 12px rgba(0,0,0,0.4)" }}
             >
-              Athinaios
-            </span>
-            {/* Visible gradient text */}
-            <span className="relative bg-[linear-gradient(to_right,#00f0ff,#22d3ee_25%,#a855f7_50%,#ec4899_75%,#00f0ff)] bg-clip-text text-transparent animate-gradient-text">
-              Athinaios
-            </span>
-          </span>
-        </motion.h1>
+              <motion.span
+                className="block text-white"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.5 }}
+              >
+                Dimitrios
+              </motion.span>
+              <span className="block mt-2">
+                {"Athinaios".split("").map((letter, i) => (
+                  <motion.span
+                    key={i}
+                    className="inline-block text-white"
+                    initial={{ opacity: 0, y: 40, filter: "blur(8px)" }}
+                    animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                    transition={{
+                      duration: 0.6,
+                      delay: 0.7 + i * 0.05,
+                      ease: [0.25, 0.4, 0.25, 1],
+                    }}
+                  >
+                    {letter}
+                  </motion.span>
+                ))}
+              </span>
+            </h1>
+          </motion.div>
+        </motion.div>
 
         {/* Subtitle */}
         <motion.p
@@ -75,8 +128,8 @@ export function Hero() {
           className="mt-6 text-lg sm:text-xl md:text-2xl text-text-muted font-light tracking-wide"
         >
           Geospatial Data Scientist{" "}
-          <span className="text-accent-cyan/60">|</span> MSc Business Analytics @ UCL{" "}
-          <span className="text-accent-cyan/60">|</span> ML & AI
+          <span className="text-accent-cyan/60">|</span> MSc Business Analytics
+          @ UCL <span className="text-accent-cyan/60">|</span> ML & AI
         </motion.p>
 
         {/* Description */}
